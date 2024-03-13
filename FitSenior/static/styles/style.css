@@ -75,18 +75,3 @@ navbar {
 } 
 
 
-#contact .contact-item { 
-background-color: aquamarine; 
-float: left; 
-	width: 20%; 
-	padding: 20px; 
-	text-align: center; 
-	border-radius: 10px; 
-	padding: 30px; 
-	margin: 30px; 
-	display: flex; 
-	justify-content: center; 
-	align-items: center; 
-	flex-direction: column; 
-	box-shadow: 15px 15px 15px black; 
-}
