@@ -1,10 +1,27 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import Customer
+from django.db import transaction
+from .models import Customer, User, ProfissionalSaude
 
-class SignupForm(UserCreationForm):
-    email = forms.EmailField(max_length=200, help_text='Required')
+class CustomerSignUpForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
 
-    class Meta:
-        model = Customer
-        fields = ('nome', 'email', 'password')
+    @transaction.atomic
+    def save(self):
+        user = super().save(commit=False)
+        user.is_customer = True
+        user.save()
+        customer = Customer.objects.create(user=user)
+        return user
+    
+class DoctorSignUpForm(UserCreationForm):
+    class Meta(UserCreationForm.Meta):
+        model = User
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_customer = True
+        if commit:
+            user.save()
+        return user

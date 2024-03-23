@@ -1,26 +1,34 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 
-class Customer(AbstractBaseUser):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=128, db_column='senha')
-    cpf = models.CharField(max_length=14, unique=True)
+class User(AbstractUser):
+    is_doctor = models.BooleanField(default=False)
+    is_customer = models.BooleanField(default=False)
+    USER_TYPE_CHOICES = (
+    (1, 'customer'),
+    (2, 'profissionalsaude'),
+    (3, 'admin')
+    )
+    user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES)
+    
+    REQUIRED_FIELDS = ['user_type'] # By doing so create superuser command will ask their input
+
+class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    cpf = models.CharField(max_length=14, unique=True,null=True)
     idade = models.PositiveIntegerField(null=True)
     endereco = models.CharField(max_length=255,null=True)
     cep = models.CharField(max_length=10,null=True)
     pais = models.CharField(max_length=100,null=True)
     profissionais_saude = models.ManyToManyField('ProfissionalSaude', related_name='clientes_associados')
 
-    USERNAME_FIELD = 'email'
 
     def __str__(self):
         return self.nome
 
 class ProfissionalSaude(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=100)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    is_acompanhante = models.BooleanField(default=False)
     especialidade = models.CharField(max_length=100)
     registro = models.CharField(max_length=20, unique=True,null=True)
     clientes = models.ManyToManyField('Customer', related_name='profissionais_saude_associados')

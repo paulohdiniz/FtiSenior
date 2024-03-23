@@ -8,15 +8,23 @@ from itertools import cycle
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "FitSenior.settings")  # Substitua 'seu_projeto' pelo nome do seu projeto Django
 django.setup()
 
-from base.models import Customer, ProfissionalSaude, Consulta, Chat, Message
+from base.models import Customer, ProfissionalSaude, Consulta, Chat, Message, User
 
 fake = Faker()
 
 # Criação de instâncias de Customer e ProfissionalSaude com dados fictícios
 for _ in range(10):  # Altere o número conforme necessário
+    user = User(
+        username=fake.unique.name(),
+        is_customer = True,
+        user_type = 1,
+        first_name=fake.unique.first_name(),
+        last_name=fake.unique.last_name(),
+        email=fake.email()
+    )
+    user.save()
     customer = Customer(
-        nome=fake.name(),
-        email=fake.email(),
+        user = user,
         cpf=fake.unique.random_number(9, True),
         idade=random.randint(18, 80),
         endereco=fake.address(),
@@ -24,9 +32,19 @@ for _ in range(10):  # Altere o número conforme necessário
         pais=fake.country()
     )
     customer.save()
-
+    
+    user2 = User(
+    username=fake.unique.name(),
+    is_doctor = True,
+    user_type = 2,
+    first_name=fake.unique.first_name(),
+    last_name=fake.unique.last_name(),
+    email=fake.email()
+    )
+    user2.save()
     profissional_saude = ProfissionalSaude(
-        nome=fake.name(),
+        user = user2,
+        is_acompanhante = fake.boolean(chance_of_getting_true=20),
         especialidade=fake.job(),
         registro=fake.unique.random_number(5, True),
     )
@@ -54,7 +72,7 @@ for _ in range(10):
         customer=next(customer_cycle),
         data=fake.date_between(start_date='-30d', end_date='today'),
         hora=fake.time(),
-        local=fake.text(max_nb_chars=500)
+        local=fake.address()
     )
     chat.save()
 
