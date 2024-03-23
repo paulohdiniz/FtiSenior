@@ -3,12 +3,10 @@ from django.contrib.auth import login
 from base.models import ProfissionalSaude, Customer
 
 def home(request):
-    first_user = Customer.objects.order_by('id').first()
-    doctors = ProfissionalSaude.objects.filter(clientes=first_user)
-
+    first_user = Customer.objects.order_by('user_id').first()
+    doctors_of_first_user = first_user.profissionais_saude.all()
     return render(request, "home.html", {
-        'paciente': first_user,
-        'doctors': doctors
+        'paciente': first_user    
     })
 
 

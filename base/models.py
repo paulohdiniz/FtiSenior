@@ -20,21 +20,20 @@ class Customer(models.Model):
     endereco = models.CharField(max_length=255,null=True)
     cep = models.CharField(max_length=10,null=True)
     pais = models.CharField(max_length=100,null=True)
-    profissionais_saude = models.ManyToManyField('ProfissionalSaude', related_name='clientes_associados')
+    profissionais_saude = models.ManyToManyField('ProfissionalSaude')
 
 
     def __str__(self):
-        return self.nome
+        return self.user.username
 
 class ProfissionalSaude(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
     is_acompanhante = models.BooleanField(default=False)
     especialidade = models.CharField(max_length=100)
     registro = models.CharField(max_length=20, unique=True,null=True)
-    clientes = models.ManyToManyField('Customer', related_name='profissionais_saude_associados')
 
     def __str__(self):
-        return self.nome
+        return self.user.username
     
 class Consulta(models.Model):
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
@@ -44,24 +43,24 @@ class Consulta(models.Model):
     local = models.CharField(max_length=255,null=True)
 
     def __str__(self):
-        return f"Consulta {self.id}"
+        return f"Consulta {self.local}"
 
 class Chat(models.Model):
     customer = models.ForeignKey('Customer', on_delete=models.CASCADE)
-    profissionais_saude = models.ManyToManyField('ProfissionalSaude', related_name='chats_associados')
+    profissionais_saude = models.ManyToManyField('ProfissionalSaude')
     data = models.DateField(null=True)
     hora = models.TimeField(null=True)
     local = models.CharField(max_length=500,null=True)
 
     def __str__(self):
-        return f"Chat {self.id}"
+        return f"Chat {self.local}"
     
 class Message(models.Model):
-    chat = models.ForeignKey(Chat, related_name='messages', on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chat, on_delete=models.CASCADE)
     profissionais_saude = models.ForeignKey('ProfissionalSaude', on_delete=models.CASCADE)
     texto = models.CharField(max_length=500)
     data = models.DateField(null=True)
     hora = models.TimeField(null=True)
 
     def __str__(self):
-        return f"Message {self.id}"
+        return f"Message {self.chat}"
